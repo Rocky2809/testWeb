@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>新马村消消乐 - 探索乡村文化</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #4a752c, #2c5a1d);
+            color: #f2e8cf;
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 15px 10px;
+            margin-bottom: 15px;
+            background: rgba(26, 51, 32, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #6a994e;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            color: #f2e8cf;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .subtitle {
+            font-size: 0.95rem;
+            color: #a7c957;
+            line-height: 1.4;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .game-board {
+            background: rgba(26, 51, 32, 0.85);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #6a994e;
+        }
+        
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            margin: 10px auto;
+            max-width: 100%;
+            background: rgba(167, 201, 87, 0.15);
+            border-radius: 10px;
+            padding: 8px;
+            border: 1px solid #386641;
+        }
+        
+        .tile {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            transition: all 0.2s ease;
+            box-shadow: 
+                inset 0 0 6px rgba(0, 0, 0, 0.2),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+            background: #a7c957;
+            color: #386641;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        .tile.selected {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 3px #f2e8cf, inset 0 0 10px rgba(255, 255, 255, 0.5);
+            z-index: 10;
+        }
+        
+        .tile.clearing {
+            animation: clearAnimation 0.5s forwards;
+        }
+        
+        @keyframes clearAnimation {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; filter: brightness(1.5); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .game-info {
+            background: rgba(26, 51, 32, 0.85);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #6a994e;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #a7c957;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            background: rgba(167, 201, 87, 0.25);
+            padding: 10px;
+            border-radius: 10px;
+            flex: 1;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f2e8cf;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #a7c957;
+            margin-top: 3px;
+        }
+        
+        .level-info {
+            margin-bottom: 15px;
+            background: rgba(167, 201, 87, 0.15);
+            padding: 12px;
+            border-radius: 10px;
+        }
+        
+        .level-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #f2e8cf;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .level-progress {
+            height: 20px;
+            background: rgba(26, 51, 32, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #a7c957, #6a994e);
+            border-radius: 10px;
+            width: 0%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        
+        .targets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .target {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(167, 201, 87, 0.2);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .target-icon {
+            font-size: 1.5rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+        
+        .target-count {
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-width: 30px;
+            text-align: right;
+        }
+        
+        .knowledge-section {
+            background: rgba(26, 51, 32, 0.85);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #6a994e;
+        }
+        
+        .knowledge-title {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #f2e8cf;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .knowledge-content {
+            background: rgba(167, 201, 87, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 120px;
+        }
+        
+        .knowledge-item {
+            text-align: center;
+            display: none;
+        }
+        
+        .knowledge-item.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .knowledge-item h3 {
+            color: #a7c957;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .knowledge-item p {
+            line-height: 1.5;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #a7c957, #6a994e);
+            color: #1a3320;
+            border: none;
+            padding: 12px 5px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 100%;
+        }
+        
+        button i {
+            font-size: 1.2rem;
+        }
+        
+        button:hover {
+            background: linear-gradient(to bottom, #b5d46a, #7aad5c);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button.secondary {
+            background: linear-gradient(to bottom, #dda15e, #bc6c25);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a3320, #2d5a24);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+            border: 2px solid #a7c957;
+        }
+        
+        .modal h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #f2e8cf;
+        }
+        
+        .modal p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #e9f5db;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #f2e8cf;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .element-icons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .element-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            background: rgba(167, 201, 87, 0.3);
+        }
+        
+        .modal-btn {
+            background: linear-gradient(to bottom, #a7c957, #6a994e);
+            color: #1a3320;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #a7c957;
+            font-size: 0.8rem;
+            background: rgba(26, 51, 32, 0.8);
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        /* 触摸反馈效果 */
+        .tile:active {
+            transform: scale(0.95);
+        }
+        
+        /* 得分动画 */
+        .score-popup {
+            position: absolute;
+            font-weight: bold;
+            color: #ffd166;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            font-size: 1.2rem;
+            z-index: 100;
+            animation: scoreRise 1s ease-out forwards;
+        }
+        
+        @keyframes scoreRise {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-40px); }
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .game-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 3px;
+                padding: 6px;
+            }
+            
+            .tile {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            button {
+                padding: 10px 5px;
+                font-size: 0.85rem;
+            }
+            
+            button i {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .game-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .targets {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-box {
+                padding: 8px;
+            }
+            
+            .stat-value {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-leaf"></i> 新马村消消乐</h1>
+            <p class="subtitle">探索乡村文化，收集积分兑换好礼！</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="game-board">
+                <div class="game-grid" id="gameGrid">
+                    <!-- 游戏方块将通过JS生成 -->
+                </div>
+            </div>
+            
+            <div class="game-info">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="score">0</div>
+                        <div class="stat-label">当前积分</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="moves">20</div>
+                        <div class="stat-label">剩余步数</div>
+                    </div>
+                </div>
+                
+                <div class="level-info">
+                    <h3 class="level-title"><i class="fas fa-flag"></i> 关卡 1: 探索新马村</h3>
+                    <div class="level-progress">
+                        <div class="progress-bar" id="progressBar">0%</div>
+                    </div>
+                    <p style="text-align: center; font-size: 0.9rem;">目标: 收集 <span id="targetScore">500</span> 分</p>
+                </div>
+                
+                <div class="targets">
+                    <div class="target">
+                        <div class="target-icon">🐔</div>
+                        <div class="target-text">清远鸡</div>
+                        <div class="target-count" id="chickenCount">0/8</div>
+                    </div>
+                    <div class="target">
+                        <div class="target-icon">🏯</div>
+                        <div class="target-text">祠堂</div>
+                        <div class="target-count" id="templeCount">0/5</div>
+                    </div>
+                    <div class="target">
+                        <div class="target-icon">🍚</div>
+                        <div class="target-text">稻米</div>
+                        <div class="target-count" id="riceCount">0/10</div>
+                    </div>
+                    <div class="target">
+                        <div class="target-icon">👘</div>
+                        <div class="target-text">客家服饰</div>
+                        <div class="target-count" id="clothesCount">0/6</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="resetBtn">
+                        <i class="fas fa-redo"></i>
+                        <span>重置</span>
+                    </button>
+                    <button id="hintBtn" class="secondary">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>提示</span>
+                    </button>
+                    <button id="shopBtn">
+                        <i class="fas fa-gift"></i>
+                        <span>积分兑换</span>
+                    </button>
+                    <button id="nextBtn" class="secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>下一关</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="knowledge-section">
+            <h2 class="knowledge-title"><i class="fas fa-book-open"></i> 新马村知识彩蛋</h2>
+            <div class="knowledge-content">
+                <div class="knowledge-item active">
+                    <h3>欢迎来到新马村消消乐！</h3>
+                    <p>消除元素，解锁新马村文化知识！</p>
+                </div>
+                <div class="knowledge-item">
+                    <h3>清远鸡</h3>
+                    <p>清远鸡是广东特产，皮薄骨软，肉质嫩滑，风味独特。</p>
+                </div>
+                <div class="knowledge-item">
+                    <h3>客家祠堂</h3>
+                    <p>祠堂是客家人祭祀祖先、商议族内大事的重要场所。</p>
+                </div>
+                <div class="knowledge-item">
+                    <h3>客家服饰</h3>
+                    <p>客家传统服饰以实用朴素为特点，配以精美刺绣。</p>
+                </div>
+                <div class="knowledge-item">
+                    <h3>新马村稻米</h3>
+                    <p>新马村水源充足，土壤肥沃，生产优质稻米。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 村庄介绍模态框 -->
+    <div class="modal" id="villageModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <h2><i class="fas fa-home"></i> 欢迎来到新马村</h2>
+            <p>新马村位于广东省清远市，是一个拥有丰富文化遗产和农业特色的美丽乡村。</p>
+            
+            <div class="element-icons">
+                <div class="element-icon">🐔</div>
+                <div class="element-icon">🍚</div>
+                <div class="element-icon">🏯</div>
+                <div class="element-icon">👘</div>
+            </div>
+            
+            <p>在本关中，您需要收集500分来解锁新马村的特色农产品和文化知识。</p>
+            <p>游戏规则：点击相邻方块交换位置，形成三个或更多相同元素的连线即可消除得分。</p>
+            
+            <button class="modal-btn" id="startGameBtn">
+                <i class="fas fa-play"></i> 开始游戏
+            </button>
+        </div>
+    </div>
+    
+    <!-- 通关提示模态框 -->
+    <div class="modal" id="levelCompleteModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeCompleteModal">&times;</button>
+            <h2><i class="fas fa-trophy"></i> 恭喜通关！</h2>
+            <p>您成功完成了第一关，获得了 <span id="finalScore">0</span> 积分！</p>
+            
+            <div style="margin: 20px 0; font-size: 1.5rem;">
+                🎉 🎊 🏆
+            </div>
+            
+            <p>使用积分兑换新马村特色产品，或继续挑战下一关！</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px;">
+                <button class="modal-btn" id="continueBtn">
+                    <i class="fas fa-shopping-cart"></i> 积分兑换
+                </button>
+                <button class="modal-btn secondary" id="nextLevelBtn">
+                    <i class="fas fa-arrow-right"></i> 下一关
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>新马村消消乐 | 探索乡村文化，助力乡村振兴 | © 2025 新马村文化推广项目</p>
+        <p>哦豁，这是我的第一个网页，请多多关照</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 游戏元素定义
+            const elements = [
+                { id: 'chicken', symbol: '🐔', name: '清远鸡', color: '#ffd166' },
+                { id: 'rice', symbol: '🍚', name: '稻米', color: '#f4a261' },
+                { id: 'temple', symbol: '🏯', name: '祠堂', color: '#e76f51' },
+                { id: 'clothes', symbol: '👘', name: '客家服饰', color: '#2a9d8f' },
+                { id: 'fruit', symbol: '🍊', name: '水果', color: '#e9c46a' },
+                { id: 'vegetable', symbol: '🥬', name: '蔬菜', color: '#8ac926' }
+            ];
+            
+            // DOM元素
+            const gameGrid = document.getElementById('gameGrid');
+            const scoreElement = document.getElementById('score');
+            const movesElement = document.getElementById('moves');
+            const progressBar = document.getElementById('progressBar');
+            const villageModal = document.getElementById('villageModal');
+            const levelCompleteModal = document.getElementById('levelCompleteModal');
+            const startGameBtn = document.getElementById('startGameBtn');
+            const closeModal = document.getElementById('closeModal');
+            const closeCompleteModal = document.getElementById('closeCompleteModal');
+            const knowledgeItems = document.querySelectorAll('.knowledge-item');
+            const resetBtn = document.getElementById('resetBtn');
+            const hintBtn = document.getElementById('hintBtn');
+            const shopBtn = document.getElementById('shopBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const continueBtn = document.getElementById('continueBtn');
+            const nextLevelBtn = document.getElementById('nextLevelBtn');
+            const finalScoreElement = document.getElementById('finalScore');
+            
+            // 游戏状态
+            let score = 0;
+            let moves = 20;
+            let targetScore = 500;
+            let selectedTile = null;
+            let isSwapping = false;
+            let gameBoard = [];
+            const BOARD_SIZE = 6; // 为手机优化减少到6x6
+            
+            // 元素计数
+            const elementCounts = {
+                'chicken': 0,
+                'temple': 0,
+                'rice': 0,
+                'clothes': 0
+            };
+            
+            // 显示村庄介绍
+            villageModal.style.display = 'flex';
+            
+            // 关闭模态框并开始游戏
+            startGameBtn.addEventListener('click', function() {
+                villageModal.style.display = 'none';
+                initializeGame();
+            });
+            
+            closeModal.addEventListener('click', function() {
+                villageModal.style.display = 'none';
+                initializeGame();
+            });
+            
+            closeCompleteModal.addEventListener('click', function() {
+                levelCompleteModal.style.display = 'none';
+            });
+            
+            // 初始化游戏
+            function initializeGame() {
+                score = 0;
+                moves = 20;
+                elementCounts.chicken = 0;
+                elementCounts.temple = 0;
+                elementCounts.rice = 0;
+                elementCounts.clothes = 0;
+                
+                // 更新UI
+                scoreElement.textContent = score;
+                movesElement.textContent = moves;
+                progressBar.textContent = '0%';
+                progressBar.style.width = '0%';
+                
+                document.getElementById('chickenCount').textContent = '0/8';
+                document.getElementById('templeCount').textContent = '0/5';
+                document.getElementById('riceCount').textContent = '0/10';
+                document.getElementById('clothesCount').textContent = '0/6';
+                
+                gameBoard = [];
+                gameGrid.innerHTML = '';
+                
+                // 创建游戏板
+                for (let row = 0; row < BOARD_SIZE; row++) {
+                    gameBoard[row] = [];
+                    for (let col = 0; col < BOARD_SIZE; col++) {
+                        const randomElement = elements[Math.floor(Math.random() * elements.length)];
+                        gameBoard[row][col] = {
+                            element: randomElement,
+                            row: row,
+                            col: col
+                        };
+                        
+                        const tile = document.createElement('div');
+                        tile.className = 'tile';
+                        tile.dataset.row = row;
+                        tile.dataset.col = col;
+                        tile.textContent = randomElement.symbol;
+                        tile.style.backgroundColor = randomElement.color;
+                        
+                        tile.addEventListener('click', function() {
+                            if (!isSwapping) {
+                                handleTileClick(row, col);
+                            }
+                        });
+                        
+                        gameGrid.appendChild(tile);
+                        gameBoard[row][col].tileElement = tile;
+                    }
+                }
+                
+                // 设置初始知识彩蛋
+                showKnowledge('欢迎来到新马村消消乐！');
+            }
+            
+            // 处理方块点击
+            function handleTileClick(row, col) {
+                if (moves <= 0) return;
+                
+                const tile = gameBoard[row][col].tileElement;
+                
+                if (!selectedTile) {
+                    // 第一次选择
+                    selectedTile = gameBoard[row][col];
+                    tile.classList.add('selected');
+                } else {
+                    // 第二次选择
+                    const prevTile = selectedTile.tileElement;
+                    prevTile.classList.remove('selected');
+                    
+                    // 检查是否相邻
+                    const rowDiff = Math.abs(selectedTile.row - row);
+                    const colDiff = Math.abs(selectedTile.col - col);
+                    const isAdjacent = (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+                    
+                    if (isAdjacent) {
+                        isSwapping = true;
+                        
+                        // 交换元素
+                        swapTiles(selectedTile, gameBoard[row][col], function() {
+                            // 检查是否有匹配
+                            const matches = findMatches();
+                            
+                            if (matches.length > 0) {
+                                // 有效移动，扣除步数
+                                moves--;
+                                movesElement.textContent = moves;
+                                
+                                // 处理匹配
+                                processMatches(matches);
+                            } else {
+                                // 无效移动，交换回来
+                                swapTiles(gameBoard[row][col], selectedTile, function() {
+                                    isSwapping = false;
+                                    selectedTile = null;
+                                });
+                            }
+                        });
+                    } else {
+                        // 选择另一个不相邻的方块，更新选择
+                        selectedTile = gameBoard[row][col];
+                        tile.classList.add('selected');
+                    }
+                }
+            }
+            
+            // 交换方块（带回调）
+            function swapTiles(tile1, tile2, callback) {
+                const tempElement = tile1.element;
+                tile1.element = tile2.element;
+                tile2.element = tempElement;
+                
+                // 更新UI
+                tile1.tileElement.textContent = tile1.element.symbol;
+                tile1.tileElement.style.backgroundColor = tile1.element.color;
+                
+                tile2.tileElement.textContent = tile2.element.symbol;
+                tile2.tileElement.style.backgroundColor = tile2.element.color;
+                
+                // 添加交换动画
+                tile1.tileElement.style.transform = 'scale(0.9)';
+                tile2.tileElement.style.transform = 'scale(0.9)';
+                
+                setTimeout(() => {
+                    tile1.tileElement.style.transform = '';
+                    tile2.tileElement.style.transform = '';
+                    
+                    if (callback) {
+                        setTimeout(callback, 100);
+                    }
+                }, 300);
+            }
+            
+            // 查找匹配项
+            function findMatches() {
+                const matches = [];
+                
+                // 检查水平匹配
+                for (let row = 0; row < BOARD_SIZE; row++) {
+                    for (let col = 0; col < BOARD_SIZE - 2; col++) {
+                        const element = gameBoard[row][col].element;
+                        if (element && 
+                            element.id === gameBoard[row][col+1].element.id && 
+                            element.id === gameBoard[row][col+2].element.id) {
+                            
+                            // 找到匹配
+                            let matchLength = 3;
+                            
+                            // 检查是否有超过3个的匹配
+                            while (col + matchLength < BOARD_SIZE && 
+                                   element.id === gameBoard[row][col+matchLength].element.id) {
+                                matchLength++;
+                            }
+                            
+                            // 添加匹配项
+                            for (let i = 0; i < matchLength; i++) {
+                                const match = {row: row, col: col+i, element: element};
+                                if (!matches.some(m => m.row === match.row && m.col === match.col)) {
+                                    matches.push(match);
+                                }
+                            }
+                            
+                            col += matchLength - 1;
+                        }
+                    }
+                }
+                
+                // 检查垂直匹配
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    for (let row = 0; row < BOARD_SIZE - 2; row++) {
+                        const element = gameBoard[row][col].element;
+                        if (element && 
+                            element.id === gameBoard[row+1][col].element.id && 
+                            element.id === gameBoard[row+2][col].element.id) {
+                            
+                            // 找到匹配
+                            let matchLength = 3;
+                            
+                            // 检查是否有超过3个的匹配
+                            while (row + matchLength < BOARD_SIZE && 
+                                   element.id === gameBoard[row+matchLength][col].element.id) {
+                                matchLength++;
+                            }
+                            
+                            // 添加匹配项
+                            for (let i = 0; i < matchLength; i++) {
+                                const match = {row: row+i, col: col, element: element};
+                                if (!matches.some(m => m.row === match.row && m.col === match.col)) {
+                                    matches.push(match);
+                                }
+                            }
+                            
+                            row += matchLength - 1;
+                        }
+                    }
+                }
+                
+                return matches;
+            }
+            
+            // 处理匹配项
+            function processMatches(matches) {
+                if (matches.length === 0) {
+                    isSwapping = false;
+                    selectedTile = null;
+                    return;
+                }
+                
+                // 计算得分
+                const points = matches.length * 10;
+                score += points;
+                scoreElement.textContent = score;
+                
+                // 更新进度
+                const progress = Math.min(100, Math.floor((score / targetScore) * 100));
+                progressBar.textContent = progress + '%';
+                progressBar.style.width = progress + '%';
+                
+                // 更新元素计数
+                matches.forEach(match => {
+                    if (elementCounts.hasOwnProperty(match.element.id)) {
+                        elementCounts[match.element.id]++;
+                    }
+                });
+                
+                document.getElementById('chickenCount').textContent = elementCounts.chicken + '/8';
+                document.getElementById('templeCount').textContent = elementCounts.temple + '/5';
+                document.getElementById('riceCount').textContent = elementCounts.rice + '/10';
+                document.getElementById('clothesCount').textContent = elementCounts.clothes + '/6';
+                
+                // 显示得分动画
+                matches.forEach(match => {
+                    const tile = gameBoard[match.row][match.col].tileElement;
+                    const popup = document.createElement('div');
+                    popup.className = 'score-popup';
+                    popup.textContent = '+10';
+                    popup.style.left = tile.offsetLeft + tile.offsetWidth/2 + 'px';
+                    popup.style.top = tile.offsetTop + 'px';
+                    gameGrid.appendChild(popup);
+                    
+                    setTimeout(() => {
+                        popup.remove();
+                    }, 1000);
+                });
+                
+                // 清除匹配的方块
+                matches.forEach(match => {
+                    const tile = gameBoard[match.row][match.col].tileElement;
+                    tile.classList.add('clearing');
+                    
+                    setTimeout(() => {
+                        // 创建新元素
+                        const randomElement = elements[Math.floor(Math.random() * elements.length)];
+                        gameBoard[match.row][match.col].element = randomElement;
+                        
+                        // 更新UI
+                        tile.textContent = randomElement.symbol;
+                        tile.style.backgroundColor = randomElement.color;
+                        tile.classList.remove('clearing');
+                    }, 500);
+                });
+                
+                // 检查知识彩蛋
+                const chickenMatches = matches.filter(m => m.element.id === 'chicken').length;
+                if (chickenMatches >= 3) {
+                    showKnowledge('清远鸡');
+                }
+                
+                const templeMatches = matches.filter(m => m.element.id === 'temple').length;
+                if (templeMatches >= 3) {
+                    showKnowledge('客家祠堂');
+                }
+                
+                const clothesMatches = matches.filter(m => m.element.id === 'clothes').length;
+                if (clothesMatches >= 3) {
+                    showKnowledge('客家服饰');
+                }
+                
+                const riceMatches = matches.filter(m => m.element.id === 'rice').length;
+                if (riceMatches >= 3) {
+                    showKnowledge('新马村稻米');
+                }
+                
+                // 检查是否过关
+                if (score >= targetScore) {
+                    setTimeout(() => {
+                        finalScoreElement.textContent = score;
+                        levelCompleteModal.style.display = 'flex';
+                    }, 800);
+                }
+                
+                // 继续检查是否有新的匹配
+                setTimeout(() => {
+                    const newMatches = findMatches();
+                    if (newMatches.length > 0) {
+                        processMatches(newMatches);
+                    } else {
+                        isSwapping = false;
+                        selectedTile = null;
+                    }
+                }, 700);
+            }
+            
+            // 显示知识彩蛋
+            function showKnowledge(topic) {
+                // 隐藏所有知识项
+                knowledgeItems.forEach(item => item.classList.remove('active'));
+                
+                // 根据主题显示相应的知识
+                let index = 0;
+                switch(topic) {
+                    case '清远鸡':
+                        index = 1;
+                        break;
+                    case '客家祠堂':
+                        index = 2;
+                        break;
+                    case '客家服饰':
+                        index = 3;
+                        break;
+                    case '新马村稻米':
+                        index = 4;
+                        break;
+                    default:
+                        index = 0;
+                }
+                
+                knowledgeItems[index].classList.add('active');
+            }
+            
+            // 重置游戏
+            resetBtn.addEventListener('click', initializeGame);
+            
+            // 提示功能
+            hintBtn.addEventListener('click', function() {
+                // 简单实现：随机选择一个可以移动的位置
+                for (let i = 0; i < 50; i++) {
+                    const row = Math.floor(Math.random() * (BOARD_SIZE - 1));
+                    const col = Math.floor(Math.random() * BOARD_SIZE);
+                    
+                    const directions = [
+                        {dr: 1, dc: 0}, // 下
+                        {dr: 0, dc: 1}  // 右
+                    ];
+                    
+                    for (const dir of directions) {
+                        const newRow = row + dir.dr;
+                        const newCol = col + dir.dc;
+                        
+                        if (newRow < BOARD_SIZE && newCol < BOARD_SIZE) {
+                            // 临时交换
+                            const temp = gameBoard[row][col].element;
+                            gameBoard[row][col].element = gameBoard[newRow][newCol].element;
+                            gameBoard[newRow][newCol].element = temp;
+                            
+                            // 检查是否形成匹配
+                            if (findMatches().length > 0) {
+                                // 高亮提示
+                                gameBoard[row][col].tileElement.classList.add('selected');
+                                gameBoard[newRow][newCol].tileElement.classList.add('selected');
+                                
+                                // 1秒后移除高亮
+                                setTimeout(() => {
+                                    gameBoard[row][col].tileElement.classList.remove('selected');
+                                    gameBoard[newRow][newCol].tileElement.classList.remove('selected');
+                                }, 1000);
+                                
+                                // 恢复原状
+                                gameBoard[newRow][newCol].element = gameBoard[row][col].element;
+                                gameBoard[row][col].element = temp;
+                                return;
+                            }
+                            
+                            // 恢复原状
+                            gameBoard[newRow][newCol].element = gameBoard[row][col].element;
+                            gameBoard[row][col].element = temp;
+                        }
+                    }
+                }
+                
+                alert('没有找到有效的移动！');
+            });
+            
+            // 积分兑换
+            shopBtn.addEventListener('click', function() {
+                alert('积分兑换功能即将开放！\n\n您可以用游戏积分兑换新马村的特色农产品和手工艺品。');
+            });
+            
+            // 下一关
+            nextBtn.addEventListener('click', function() {
+                if (score >= targetScore) {
+                    finalScoreElement.textContent = score;
+                    levelCompleteModal.style.display = 'flex';
+                } else {
+                    alert(`还需要${targetScore - score}分才能完成本关！`);
+                }
+            });
+            
+            continueBtn.addEventListener('click', function() {
+                levelCompleteModal.style.display = 'none';
+                alert('积分商城即将开放！');
+            });
+            
+            nextLevelBtn.addEventListener('click', function() {
+                levelCompleteModal.style.display = 'none';
+                alert('第二关开发中，敬请期待！');
+            });
+            
+            // 初始化游戏
+            initializeGame();
+        });
+    </script>
+</body>
+</html>
